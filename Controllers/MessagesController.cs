@@ -475,6 +475,14 @@ namespace JuiceChatBot
                                     DButil.HistoryLog("* activity.ChannelId : " + activity.ChannelId);
                                     DButil.HistoryLog("* dlg.dlgId : "+ dlg.dlgId + " | dlg.cardText : " + dlg.cardText);
 
+                                    if (dlg.dlgId.Equals(30)) //  주문내역 dialog 일시..
+                                    {
+                                        string selectedJuice = "";
+                                        //DButil.HistoryLog("* dlg.cardText : " + dlg.cardText);
+                                        selectedJuice = db.SelectUserHistoryComment(activity.Conversation.Id, "selectAvenjuice");
+                                        DButil.HistoryLog("* selectedJuice : " + selectedJuice);
+                                    }
+
                                     if (dlg.dlgId.Equals(24)) //  주문내역 dialog 일시..
                                     {
                                         DButil.HistoryLog("*** activity.Conversation.Id : " + activity.Conversation.Id + " | dlg.cardText : " + dlg.cardText + " | fullentity : " + fullentity); 
