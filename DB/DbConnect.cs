@@ -986,7 +986,48 @@ namespace JuiceChatBot.DB
 			return result;
 		}
 
-		public int SelectUserQueryErrorMessageCheck(string userID, int appID)
+        public int insertHistoryOrderNumber(string userNumber, string channel, int responseTime, String orderNumber, String commentCode)
+        {
+            int appID = 0;
+            int result;
+
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                conn.Open();
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = conn;
+                cmd.CommandText += " INSERT INTO TBL_HISTORY_QUERY ";
+                cmd.CommandText += " (USER_NUMBER, CUSTOMER_COMMENT_KR, CHATBOT_COMMENT_CODE, CHANNEL, RESPONSE_TIME, REG_DATE, ACTIVE_FLAG, APP_ID) ";
+                cmd.CommandText += " VALUES ";
+                cmd.CommandText += " (@userNumber, @customerCommentKR, @chatbotCommentCode, @channel, @responseTime, CONVERT(VARCHAR,  GETDATE(), 101) + ' ' + CONVERT(VARCHAR,  DATEADD( HH, 9, GETDATE() ), 24), 0, @appID) ";
+
+                cmd.Parameters.AddWithValue("@userNumber", userNumber);
+                cmd.Parameters.AddWithValue("@customerCommentKR", orderNumber);
+
+                if (MessagesController.replyresult.Equals("S"))
+                {
+                    cmd.Parameters.AddWithValue("@chatbotCommentCode", "SEARCH");
+                }
+                else if (MessagesController.replyresult.Equals("D"))
+                {
+                    cmd.Parameters.AddWithValue("@chatbotCommentCode", "ERROR");
+                }
+                else
+                {
+                    cmd.Parameters.AddWithValue("@chatbotCommentCode", commentCode);
+                }
+
+                cmd.Parameters.AddWithValue("@channel", channel);
+                cmd.Parameters.AddWithValue("@responseTime", responseTime);
+                cmd.Parameters.AddWithValue("@appID", appID);
+
+                result = cmd.ExecuteNonQuery();
+                Debug.WriteLine("result : " + result);
+            }
+            return result;
+        }
+
+        public int SelectUserQueryErrorMessageCheck(string userID, int appID)
 		{
 			SqlDataReader rdr = null;
 			int result = 0;

@@ -80,6 +80,9 @@ namespace JuiceChatBot
         public static DbConnect db = new DbConnect();
         public static DButil dbutil = new DButil();
 
+        public static String orderNum = null;
+        public static String orderNumIdenty = null;
+
         public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
         {
 
@@ -250,8 +253,33 @@ namespace JuiceChatBot
                 {
                     Debug.WriteLine("* activity.Type == ActivityTypes.Message ");
                     channelID = activity.ChannelId;
-                    string orgMent = activity.Text;
-
+                    //string orgMent = activity.Text;
+                    string orgMent = null;
+                    /*
+                     * 수량을 입력했을 시 처리 로직
+                     * 수량으로 입력하면 해당 데이터를 히스토리 테이블에 입력 하고 다음의 다이알로그를 나타내기 위해서 입력값을 변환한다.
+                     * */
+                    if (orderNumIdenty == null||orderNumIdenty.Equals(""))
+                    {
+                        orgMent = activity.Text;
+                    }
+                    else //orderNumIdenty 에는 orderNumber 만 들어갈 테니까. 만약을 위해서 숫자만 들어왔는지 한번 더 검증.
+                    {
+                        bool checkNum = Regex.IsMatch(activity.Text, @"^\d+$");
+                        if (checkNum)
+                        {
+                            orderNum = activity.Text;
+                            /*
+                             * 히스토리 입력 로직 추가
+                             **/
+                            db.insertHistoryOrderNumber(activity.Conversation.Id, activity.ChannelId, 10, orderNum, "orderNumber");
+                            orgMent = "주문확인";
+                        }
+                        else
+                        {
+                            orgMent = activity.Text;
+                        }
+                    }
 
                     apiFlag = "COMMON";
 
@@ -278,6 +306,7 @@ namespace JuiceChatBot
                     else
                     {
                         Debug.WriteLine("* NO bannedMsg !");
+                    
                         queryStr = orgMent;
                         //인텐트 엔티티 검출
                         //캐시 체크
@@ -474,8 +503,9 @@ namespace JuiceChatBot
                                     //DButil.HistoryLog("* facebook dlg.dlgId : " + dlg.dlgId);
                                     DButil.HistoryLog("* activity.ChannelId : " + activity.ChannelId);
                                     DButil.HistoryLog("* dlg.dlgId : "+ dlg.dlgId + " | dlg.cardText : " + dlg.cardText);
+                                    Debug.WriteLine("* dlg.dlgId : " + dlg.dlgId);
 
-                                    if (dlg.dlgId.Equals(30)) //  주문내역 dialog 일시..
+                                    if (dlg.dlgId.Equals(30)) //  바로주문 dialog 일시..
                                     {
                                         string selectedJuice = "";
                                         //DButil.HistoryLog("* dlg.cardText : " + dlg.cardText);
@@ -483,21 +513,37 @@ namespace JuiceChatBot
                                         DButil.HistoryLog("* selectedJuice : " + selectedJuice);
                                     }
 
-                                    if (dlg.dlgId.Equals(24)) //  주문내역 dialog 일시..
+                                    if (dlg.dlgId.Equals(34)) //  수량입력일 때만 적용되도록 한다. 다른 거일때는 적용되면 안됨.
+                                    {
+                                        orderNumIdenty = "orderNumber";
+                                    }
+                                    else
+                                    {
+                                        orderNumIdenty = "";
+                                        orderNum = "";
+                                    }
+
+
+
+
+                                    if (dlg.dlgId.Equals(35)) //  주문내역 dialog 일시..
                                     {
                                         DButil.HistoryLog("*** activity.Conversation.Id : " + activity.Conversation.Id + " | dlg.cardText : " + dlg.cardText + " | fullentity : " + fullentity); 
 
                                         string[] strComment = new string[3];
                                         string optionComment = "";
+                                        string orderNumber = ""; //주문수량
 
                                         strComment[0] = db.SelectUserHistoryComment(activity.Conversation.Id, "selectDiet");
                                         strComment[1] = db.SelectUserHistoryComment(activity.Conversation.Id, "selectDelievery");
+                                        orderNumber = db.SelectUserHistoryComment(activity.Conversation.Id, "orderNumber");
                                         //strComment[2] = db.SelectUserHistoryComment(activity.Conversation.Id, "order");
                                         DButil.HistoryLog("*** strComment[0] : " + strComment[0] + " | strComment[1] : " + strComment[1] + " | strComment[2] : " + strComment[2]);
 
                                         //optionComment = strComment[0] + "/" + strComment[1] + "/" + strComment[2];
                                         optionComment = strComment[0] + "/" + strComment[1] + "/" + fullentity;
                                         dlg.cardText = dlg.cardText.Replace("#OPTIONS", optionComment);
+                                        dlg.cardText = dlg.cardText.Replace("#ORDERNUMBER", orderNumber);
 
                                     }
 
