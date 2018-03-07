@@ -20,6 +20,7 @@ using System.IO;
 using System.Text;
 using Newtonsoft.Json;
 using Microsoft.Bot.Builder.ConnectorEx;
+using System.Collections;
 
 namespace JuiceChatBot
 {
@@ -82,6 +83,27 @@ namespace JuiceChatBot
 
         public static String orderNum = null;
         public static String orderNumIdenty = null;
+
+        //제품별 가격과 포인트, 제품명
+        public static String theBeginningTitle = "the beginning";
+        public static int theBeginningPrice = 40000;
+        public static int theBeginningPoint = 1200;
+        public static String toAnotherLevelTitle = "to another level";
+        public static int toAnotherLevelPrice = 36000;
+        public static int toAnotherLevelPoint = 1080;
+        public static String beautifulRevolutionTitle = "beautiful revolution";
+        public static int beautifulRevolutionPrice = 37000;
+        public static int beautifulRevolutionPoint = 1110;
+        public static String pickMePTitle = "PICK ME";
+        public static int pickMePrice = 20000;
+        public static int pickMePoint = 600;
+        /*
+        * 픽미 옵션으로 처리하기 위한 부분
+        */
+        public static Hashtable pickOptionTable = new Hashtable();
+        public static String pickOptionData = "";
+        public static String pickOptionNextData = "";
+        public static String selectSID = "0";
 
         public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
         {
@@ -241,9 +263,22 @@ namespace JuiceChatBot
                 Debug.WriteLine("* activity.Recipient.Id : " + activity.Recipient.Id);
                 Debug.WriteLine("* activity.ServiceUrl : " + activity.ServiceUrl);
 
+                //orderList 초기 데이터 입력
+                //db.initOrderList(activity.Conversation.Id);
                 DButil.HistoryLog("* activity.Type : " + activity.ChannelData);
                 DButil.HistoryLog("* activity.Recipient.Id : " + activity.Recipient.Id);
                 DButil.HistoryLog("* activity.ServiceUrl : " + activity.ServiceUrl);
+
+                pickOptionTable = new Hashtable();
+                pickOptionTable.Add(1, "캐롯맨");
+                pickOptionTable.Add(2, "아이언비트");
+                pickOptionTable.Add(3, "인크레더블헐키");
+                pickOptionTable.Add(4, "토마토르");
+                pickOptionTable.Add(5, "닥터오렌지");
+                pickOptionTable.Add(6, "팔팔할수박에");
+                pickOptionTable.Add(7, "자몽블라썸");
+                pickOptionTable.Add(8, "캡틴파프리카");
+                pickOptionTable.Add(9, " ");
             }
             else if (activity.Type == ActivityTypes.Message)
             {
@@ -257,23 +292,54 @@ namespace JuiceChatBot
                     string orgMent = null;
                     /*
                      * 수량을 입력했을 시 처리 로직
-                     * 수량으로 입력하면 해당 데이터를 히스토리 테이블에 입력 하고 다음의 다이알로그를 나타내기 위해서 입력값을 변환한다.
+                     * 수량으로 입력하면 해당 데이터를 테이블에 입력 하고 다음의 다이알로그를 나타내기 위해서 입력값을 변환한다.
+                     * 그냥 숫자만 들어왔을 때는 픽미옵션으로 판단하고 픽미데이터를 셋팅한다. 처리는 다이알로그에서 처리한다.
                      * */
                     if (orderNumIdenty == null||orderNumIdenty.Equals(""))
                     {
                         orgMent = activity.Text;
+                    }else if (orderNumIdenty.Equals("pickMeOption"))
+                    {
+                        bool checkNum = Regex.IsMatch(activity.Text, @"^\d+$");
+                        if (checkNum)
+                        {
+                            int tempMessageNum = Int32.Parse(activity.Text);
+                            pickOptionData = (String)pickOptionTable[tempMessageNum];
+                            orgMent = pickOptionNextData;
+                        }
+                        else
+                        {
+                            orgMent = activity.Text;
+                        }
                     }
                     else //orderNumIdenty 에는 orderNumber 만 들어갈 테니까. 만약을 위해서 숫자만 들어왔는지 한번 더 검증.
                     {
                         bool checkNum = Regex.IsMatch(activity.Text, @"^\d+$");
                         if (checkNum)
                         {
+                            String[] product_nm_ = orderNumIdenty.Split(new string[] { "::" }, StringSplitOptions.None);
+                            String product_nm = product_nm_[1];
                             orderNum = activity.Text;
-                            /*
-                             * 히스토리 입력 로직 추가
-                             **/
-                            db.insertHistoryOrderNumber(activity.Conversation.Id, activity.ChannelId, 10, orderNum, "orderNumber");
-                            orgMent = "주문확인";
+                            db.updateProductOption(activity.Conversation.Id, product_nm, "orderAmount", orderNum, selectSID);
+                            if (product_nm.Equals(theBeginningTitle)){
+                                orgMent = "더비기닝주문확인";
+                            }
+                            else if (product_nm.Equals(beautifulRevolutionTitle)){
+                                orgMent = "뷰티풀레볼루션주문확인";
+                            }
+                            else if (product_nm.Equals(toAnotherLevelTitle))
+                            {
+                                orgMent = "투어나더레벨주문확인";
+                            }
+                            else if (product_nm.Equals(pickMePTitle))
+                            {
+                                orgMent = "픽미주문확인";
+                            }
+                            else
+                            {
+                                orgMent = "주문확인";
+                            }
+                            
                         }
                         else
                         {
@@ -505,29 +571,351 @@ namespace JuiceChatBot
                                     DButil.HistoryLog("* dlg.dlgId : "+ dlg.dlgId + " | dlg.cardText : " + dlg.cardText);
                                     Debug.WriteLine("* dlg.dlgId : " + dlg.dlgId);
 
-                                    if (dlg.dlgId.Equals(30)) //  바로주문 dialog 일시..
-                                    {
-                                        string selectedJuice = "";
-                                        //DButil.HistoryLog("* dlg.cardText : " + dlg.cardText);
-                                        selectedJuice = db.SelectUserHistoryComment(activity.Conversation.Id, "selectAvenjuice");
-                                        DButil.HistoryLog("* selectedJuice : " + selectedJuice);
-                                    }
-
                                     if (dlg.dlgId.Equals(34)) //  수량입력일 때만 적용되도록 한다. 다른 거일때는 적용되면 안됨.
                                     {
-                                        orderNumIdenty = "orderNumber";
+                                        orderNumIdenty = "orderNumber::"+theBeginningTitle;
+                                    }else if (dlg.dlgId.Equals(38)) //  수량입력일 때만 적용되도록 한다. 다른 거일때는 적용되면 안됨.
+                                    {
+                                        orderNumIdenty = "orderNumber::" + toAnotherLevelTitle;
+                                    }else if (dlg.dlgId.Equals(42)) //  수량입력일 때만 적용되도록 한다. 다른 거일때는 적용되면 안됨.
+                                    {
+                                        orderNumIdenty = "orderNumber::" + beautifulRevolutionTitle;
+                                    }
+                                    else if (dlg.dlgId.Equals(52)) //  수량입력일 때만 적용되도록 한다. 다른 거일때는 적용되면 안됨.
+                                    {
+                                        orderNumIdenty = "orderNumber::" + pickMePTitle;
+                                    }
+                                    else if (dlg.dlgId.Equals(44)) //  픽미옵션처리 빌려쓰자.
+                                    {
+                                        orderNumIdenty = "pickMeOption";
+                                        pickOptionNextData = "픽미::옵션1";
+                                    }
+                                    else if (dlg.dlgId.Equals(45)) //  픽미옵션처리 빌려쓰자.
+                                    {
+                                        orderNumIdenty = "pickMeOption";
+                                        pickOptionNextData = "픽미::옵션2";
+                                    }
+                                    else if (dlg.dlgId.Equals(46)) //  픽미옵션처리 빌려쓰자.
+                                    {
+                                        orderNumIdenty = "pickMeOption";
+                                        pickOptionNextData = "픽미::옵션3";
+                                    }
+                                    else if (dlg.dlgId.Equals(47)) //  픽미옵션처리 빌려쓰자.
+                                    {
+                                        orderNumIdenty = "pickMeOption";
+                                        pickOptionNextData = "픽미::옵션4";
+                                    }
+                                    else if (dlg.dlgId.Equals(48)) //  픽미옵션처리 빌려쓰자.
+                                    {
+                                        orderNumIdenty = "pickMeOption";
+                                        pickOptionNextData = "픽미::옵션5";
+                                    }
+                                    else if (dlg.dlgId.Equals(49)) //  픽미옵션처리 빌려쓰자.
+                                    {
+                                        orderNumIdenty = "pickMeOption";
+                                        pickOptionNextData = "픽미::옵션6";
+                                    }
+                                    else if (dlg.dlgId.Equals(50)) //  픽미옵션처리 빌려쓰자.
+                                    {
+                                        orderNumIdenty = "pickMeOption";
+                                        pickOptionNextData = "픽미::옵션7";
                                     }
                                     else
                                     {
                                         orderNumIdenty = "";
                                         orderNum = "";
                                     }
-
-
-
-
-                                    if (dlg.dlgId.Equals(35)) //  주문내역 dialog 일시..
+                                    /*
+                                     * 각 제품별로 데이터 저장
+                                     * */
+                                    String[] temp_cleanse = null;
+                                    String cleanse_day = null;
+                                    String[] temp_bosic = null;
+                                    String bosic_data = null;
+                                    String[] temp_delivery = null;
+                                    String delivery = null;
+                                    
+                                    if (dlg.dlgId.Equals(31)|| dlg.dlgId.Equals(36)|| dlg.dlgId.Equals(40)|| dlg.dlgId.Equals(44))
                                     {
+                                        //기본정보 저장
+                                        String productTitle = "";
+                                        if (dlg.dlgId.Equals(31)){
+                                            productTitle = theBeginningTitle;
+                                        }
+
+                                        if (dlg.dlgId.Equals(36))
+                                        {
+                                            productTitle = toAnotherLevelTitle;
+                                        }
+
+                                        if (dlg.dlgId.Equals(40))
+                                        {
+                                            productTitle = beautifulRevolutionTitle;
+                                        }
+
+                                        if (dlg.dlgId.Equals(44))
+                                        {
+                                            productTitle = pickMePTitle;
+                                        }
+
+                                        db.insertProductBasicInfo(activity.Conversation.Id, productTitle);
+                                        selectSID = db.selectProductSID(activity.Conversation.Id, productTitle);
+                                    }
+
+                                    if (dlg.dlgId.Equals(32)) //비기닝 클렌즈 일수
+                                    {
+                                        temp_cleanse = orgMent.Split(new string[] { "::" }, StringSplitOptions.None);
+                                        cleanse_day = temp_cleanse[1];
+                                        db.updateProductOption(activity.Conversation.Id, theBeginningTitle, "cleanse", cleanse_day, selectSID);
+                                    }
+
+                                    if (dlg.dlgId.Equals(33)) //비기닝 보식스무디 종류 선택
+                                    {
+                                        temp_bosic = orgMent.Split(new string[] { "::" }, StringSplitOptions.None);
+                                        bosic_data = temp_bosic[1];
+                                        db.updateProductOption(activity.Conversation.Id, theBeginningTitle, "smoothie", bosic_data, selectSID);
+                                    }
+
+                                    if (dlg.dlgId.Equals(34)) //비기닝 배송방식 선택
+                                    {
+                                        temp_delivery = orgMent.Split(new string[] { "::" }, StringSplitOptions.None);
+                                        delivery = temp_delivery[1];
+                                        db.updateProductOption(activity.Conversation.Id, theBeginningTitle, "delivery", delivery, selectSID);
+                                    }
+
+                                    if (dlg.dlgId.Equals(37)) //투어나더레벨 클렌즈 일수
+                                    {
+                                        temp_cleanse = orgMent.Split(new string[] { "::" }, StringSplitOptions.None);
+                                        cleanse_day = temp_cleanse[1];
+                                        db.updateProductOption(activity.Conversation.Id, toAnotherLevelTitle, "cleanse", cleanse_day, selectSID);
+                                    }
+
+                                    if (dlg.dlgId.Equals(38)) //투어나더레벨 배송방식 선택
+                                    {
+                                        temp_delivery = orgMent.Split(new string[] { "::" }, StringSplitOptions.None);
+                                        delivery = temp_delivery[1];
+                                        db.updateProductOption(activity.Conversation.Id, toAnotherLevelTitle, "delivery", delivery, selectSID);
+                                    }
+                                    
+                                    if (dlg.dlgId.Equals(41)) //뷰티풀레볼루션 클랜즈 일수
+                                    {
+                                        temp_cleanse = orgMent.Split(new string[] { "::" }, StringSplitOptions.None);
+                                        cleanse_day = temp_cleanse[1];
+                                        db.updateProductOption(activity.Conversation.Id, beautifulRevolutionTitle, "cleanse", cleanse_day, selectSID);
+                                    }
+
+                                    if (dlg.dlgId.Equals(42)) //뷰티풀레볼루션 배송방식 선택
+                                    {
+                                        temp_delivery = orgMent.Split(new string[] { "::" }, StringSplitOptions.None);
+                                        delivery = temp_delivery[1];
+                                        db.updateProductOption(activity.Conversation.Id, beautifulRevolutionTitle, "delivery", delivery, selectSID);
+                                    }
+                                    /*
+                                     * pick me option
+                                     * */
+                                    if (dlg.dlgId.Equals(45)) //픽미 옵션1 처리
+                                    {
+                                        db.updateProductOption(activity.Conversation.Id, pickMePTitle, "pickMeOption1", pickOptionData, selectSID);
+                                    }
+
+                                    if (dlg.dlgId.Equals(46)) //픽미 옵션2 처리
+                                    {
+                                        db.updateProductOption(activity.Conversation.Id, pickMePTitle, "pickMeOption2", pickOptionData, selectSID);
+                                    }
+
+                                    if (dlg.dlgId.Equals(47)) //픽미 옵션3 처리
+                                    {
+                                        db.updateProductOption(activity.Conversation.Id, pickMePTitle, "pickMeOption3", pickOptionData, selectSID);
+                                    }
+
+                                    if (dlg.dlgId.Equals(48)) //픽미 옵션4 처리
+                                    {
+                                        db.updateProductOption(activity.Conversation.Id, pickMePTitle, "pickMeOption4", pickOptionData, selectSID);
+                                    }
+
+                                    if (dlg.dlgId.Equals(49)) //픽미 옵션5 처리
+                                    {
+                                        db.updateProductOption(activity.Conversation.Id, pickMePTitle, "pickMeOption5", pickOptionData, selectSID);
+                                    }
+
+                                    if (dlg.dlgId.Equals(50)) //픽미 옵션6 처리
+                                    {
+                                        db.updateProductOption(activity.Conversation.Id, pickMePTitle, "pickMeOption6", pickOptionData, selectSID);
+                                    }
+
+                                    if (dlg.dlgId.Equals(51)) //픽미 옵션7 처리
+                                    {
+                                        db.updateProductOption(activity.Conversation.Id, pickMePTitle, "pickMeOption7", pickOptionData, selectSID);
+                                    }
+
+                                    if (dlg.dlgId.Equals(52)) //픽미 배송방식 선택
+                                    {
+                                        temp_delivery = orgMent.Split(new string[] { "::" }, StringSplitOptions.None);
+                                        delivery = temp_delivery[1];
+                                        db.updateProductOption(activity.Conversation.Id, pickMePTitle, "delivery", delivery, selectSID);
+                                    }
+
+                                    if (dlg.dlgId.Equals(53)) //비기닝
+                                    {
+                                        List<CartList> cartList = db.selectOrderResult(activity.Conversation.Id, theBeginningTitle);
+                                        String optionText = null;
+                                        String orderNmText = null;
+                                        String orderPriceText = null;
+                                        String orderSID = null;
+                                        int orderPrice = 0;
+                                        if (cartList.Count == 0)
+                                        {
+                                            optionText = "NONE";
+                                            orderNmText = "0";
+                                            orderPriceText = "0";
+                                            orderSID = "";
+                                        }
+                                        else
+                                        {
+                                            optionText = cartList[0].oCleanse + " / " + cartList[0].oSmoothie + " / " + cartList[0].oDelivery;
+                                            orderNmText = cartList[0].orderAmount;
+                                            int orderNmInt = Int32.Parse(orderNmText);
+                                            orderPrice = theBeginningPrice * orderNmInt;
+                                            //클렌즈 일수에 따라서 가격이 틀리다.
+                                            if (cartList[0].oCleanse.Equals("3DAY"))
+                                            {
+                                                orderPrice = orderPrice * 3;
+                                            }
+                                            else if (cartList[0].oCleanse.Equals("5DAY"))
+                                            {
+                                                orderPrice = orderPrice * 5;
+                                            }
+                                            else
+                                            {
+                                                //nothing
+                                            }
+                                            orderPriceText = String.Format("{0:0,0}", orderPrice);
+                                            orderSID = cartList[0].sid;
+                                        }
+                                        dlg.cardText = dlg.cardText.Replace("#OPTIONS", optionText);
+                                        dlg.cardText = dlg.cardText.Replace("#ORDERNUMBER", orderNmText);
+                                        dlg.cardText = dlg.cardText.Replace("#ORDERPRICE", orderPriceText);
+                                        dlg.btn3Context = dlg.btn3Context.Replace("#ORDERSID", orderSID);
+
+                                    }
+
+                                    if(dlg.dlgId.Equals(54)|| dlg.dlgId.Equals(55)) //투어나더레벨, 뷰티풀레볼루션 주문완료
+                                    {
+                                        String productTitle = "";
+                                        int productPrice = 0;
+                                        if (dlg.dlgId.Equals(46))
+                                        {
+                                            productTitle = toAnotherLevelTitle;
+                                            productPrice = toAnotherLevelPrice;
+                                        }
+                                        else if (dlg.dlgId.Equals(47))
+                                        {
+                                            productTitle = beautifulRevolutionTitle;
+                                            productPrice = beautifulRevolutionPrice;
+                                        }
+                                        else
+                                        {
+                                            //nothing
+                                        }
+
+                                        List<CartList> cartList = db.selectOrderResult(activity.Conversation.Id, productTitle);
+                                        String optionText = null;
+                                        String orderNmText = null;
+                                        String orderPriceText = null;
+                                        int orderPrice = 0;
+                                        if (cartList.Count == 0)
+                                        {
+                                            optionText = "NONE";
+                                            orderNmText = "0";
+                                            orderPriceText = "0";
+                                        }
+                                        else
+                                        {
+                                            optionText = cartList[0].oCleanse + " / " + cartList[0].oDelivery;
+                                            orderNmText = cartList[0].orderAmount;
+                                            int orderNmInt = Int32.Parse(orderNmText);
+                                            orderPrice = productPrice * orderNmInt;
+                                            //클렌즈 일수에 따라서 가격이 틀리다.
+                                            if (cartList[0].oCleanse.Equals("3DAY"))
+                                            {
+                                                orderPrice = orderPrice * 3;
+                                            }
+                                            else if (cartList[0].oCleanse.Equals("5DAY"))
+                                            {
+                                                orderPrice = orderPrice * 5;
+                                            }
+                                            else
+                                            {
+                                                //nothing
+                                            }
+                                            orderPriceText = String.Format("{0:0,0}", orderPrice);
+                                            //orderPriceText = "123";
+                                        }
+                                        dlg.cardText = dlg.cardText.Replace("#OPTIONS", optionText);
+                                        dlg.cardText = dlg.cardText.Replace("#ORDERNUMBER", orderNmText);
+                                        dlg.cardText = dlg.cardText.Replace("#ORDERPRICE", orderPriceText);
+
+                                    }
+
+                                    if (dlg.dlgId.Equals(56)) //픽미 주문완료
+                                    {
+                                        
+                                        List<CartList> cartList = db.selectOrderResult(activity.Conversation.Id, pickMePTitle);
+                                        String optionText = null;
+                                        String orderNmText = null;
+                                        String orderPriceText = null;
+                                        
+                                        int orderPrice = 0;
+                                        if (cartList.Count == 0)
+                                        {
+                                            optionText = "NONE";
+                                            orderNmText = "0";
+                                            orderPriceText = "0";
+                                        }
+                                        else
+                                        {
+                                            optionText = cartList[0].oPick1 + " / " + cartList[0].oPick2 + " / " + cartList[0].oPick3 + " / " + cartList[0].oPick4 + " / " + cartList[0].oPick5 + " / " + cartList[0].oPick6 + " / " + cartList[0].oPick7 + " / " + cartList[0].oDelivery;
+                                            orderNmText = cartList[0].orderAmount;
+                                            int orderNmInt = Int32.Parse(orderNmText);
+                                            orderPrice = pickMePrice * orderNmInt;
+                                           
+                                            orderPriceText = String.Format("{0:0,0}", orderPrice);
+                                            //orderPriceText = "123";
+                                        }
+                                        dlg.cardText = dlg.cardText.Replace("#OPTIONS", optionText);
+                                        dlg.cardText = dlg.cardText.Replace("#ORDERNUMBER", orderNmText);
+                                        dlg.cardText = dlg.cardText.Replace("#ORDERPRICE", orderPriceText);
+
+                                    }
+
+                                    /*
+                                     * cart 처리하기
+                                     * 최상위의 것을 처리한다.
+                                     * */
+                                    if (dlg.dlgId.Equals(58))
+                                    {
+                                        db.updateProductCart(activity.Conversation.Id, theBeginningTitle);
+                                    }else if (dlg.dlgId.Equals(59))
+                                    {
+                                        db.updateProductCart(activity.Conversation.Id, toAnotherLevelTitle);
+                                    }
+                                    else if (dlg.dlgId.Equals(60))
+                                    {
+                                        db.updateProductCart(activity.Conversation.Id, beautifulRevolutionTitle);
+                                    }
+                                    else if (dlg.dlgId.Equals(61))
+                                    {
+                                        db.updateProductCart(activity.Conversation.Id, pickMePTitle);
+                                    }
+                                    else
+                                    {
+
+                                    }
+
+
+                                    if (dlg.dlgId.Equals(62)) //  카트보기
+                                    {
+                                        /*
                                         DButil.HistoryLog("*** activity.Conversation.Id : " + activity.Conversation.Id + " | dlg.cardText : " + dlg.cardText + " | fullentity : " + fullentity); 
 
                                         string[] strComment = new string[3];
@@ -544,7 +932,15 @@ namespace JuiceChatBot
                                         optionComment = strComment[0] + "/" + strComment[1] + "/" + fullentity;
                                         dlg.cardText = dlg.cardText.Replace("#OPTIONS", optionComment);
                                         dlg.cardText = dlg.cardText.Replace("#ORDERNUMBER", orderNumber);
-
+                                        */
+                                        String cart_data = "";
+                                        cart_data = db.selectCartList(activity.Conversation.Id);
+                                        if(cart_data.Equals("")|| cart_data == null)
+                                        {
+                                            cart_data = "카트에 저장된 데이터가 없습니다";
+                                        }
+                                        Debug.WriteLine("* cart_data : " + cart_data);
+                                        dlg.cardText = dlg.cardText.Replace("#CARTLIST", cart_data);
                                     }
 
                                     if (activity.ChannelId.Equals("facebook") && string.IsNullOrEmpty(dlg.cardTitle) && dlg.dlgType.Equals(TEXTDLG))

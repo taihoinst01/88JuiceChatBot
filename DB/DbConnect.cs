@@ -1177,7 +1177,324 @@ namespace JuiceChatBot.DB
 
             return resultComment;
         }
+        /*
+         * 처음 초기화 정보 저장
+         * */
+        public int initOrderList(string userNumber)
+        {
+            int result;
 
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                conn.Open();
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = conn;
+                cmd.CommandText += " INSERT INTO TBL_ORDER_LIST ";
+                cmd.CommandText += " (USER_NUMBER, ITEM_1_CNT, ITEM_2_CNT, ITEM_3_CNT, ITEM_4_CNT, REG_DATE, USE_YN) ";
+                cmd.CommandText += " VALUES ";
+                cmd.CommandText += " (@userNumber, 0, 0, 0, 0, CONVERT(VARCHAR,  GETDATE(), 101) + ' ' + CONVERT(VARCHAR,  DATEADD( HH, 9, GETDATE() ), 24), @userYn) ";
+
+                cmd.Parameters.AddWithValue("@userNumber", userNumber);
+                cmd.Parameters.AddWithValue("@userYn", "N");
+                
+                result = cmd.ExecuteNonQuery();
+                Debug.WriteLine("result : " + result);
+            }
+            return result;
+        }
+        /*
+         * 상품 기본정보 저장
+         * */
+        public int insertProductBasicInfo(string userNumber, string item_name)
+        {
+            int result;
+
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                conn.Open();
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = conn;
+                cmd.CommandText += " INSERT INTO TBL_ORDER_LIST_DETAIL ";
+                cmd.CommandText += " (USER_NUMBER, ITEM_NM, CART_IN, REG_DATE) ";
+                cmd.CommandText += " VALUES ";
+                cmd.CommandText += " (@userNumber, @item_name, 'N', CONVERT(VARCHAR,  GETDATE(), 101) + ' ' + CONVERT(VARCHAR,  DATEADD( HH, 9, GETDATE() ), 24)) ";
+
+                cmd.Parameters.AddWithValue("@userNumber", userNumber);
+                cmd.Parameters.AddWithValue("@item_name", item_name);
+
+                result = cmd.ExecuteNonQuery();
+                Debug.WriteLine("result : " + result);
+            }
+            return result;
+        }
+
+        //저장된 상품의 SID 추출
+        public String selectProductSID(string userNumber, string item_name)
+        {
+            SqlDataReader rdr = null;
+            String result_string = "";
+            
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                conn.Open();
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = conn;
+
+                cmd.CommandText += " SELECT TOP 1 CAST(SID AS VARCHAR(12)) AS SID ";
+                cmd.CommandText += " FROM TBL_ORDER_LIST_DETAIL";
+                cmd.CommandText += " WHERE USER_NUMBER = @userNumber AND ITEM_NM = @item_name";
+                cmd.CommandText += " ORDER BY REG_DATE DESC";
+
+                cmd.Parameters.AddWithValue("@userNumber", userNumber);
+                cmd.Parameters.AddWithValue("@item_name", item_name);
+
+                rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
+
+                while (rdr.Read())
+                {
+                    result_string = rdr["SID"] as string;
+                }
+            }
+            return result_string;
+        }
+
+
+        /*
+         * 상품 옵션 정보저장
+         * */
+        public int updateProductOption(string userNumber, string item_name, string option_style, string option_data, string sid)
+        {
+            int result;
+
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                conn.Open();
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = conn;
+                cmd.CommandText += " UPDATE TBL_ORDER_LIST_DETAIL SET ";
+                if (option_style.Equals("cleanse"))
+                {
+                    cmd.CommandText += " O_CLEANSE = @option_data ";
+                }else if (option_style.Equals("smoothie"))
+                {
+                    cmd.CommandText += " O_SMOOTHIE = @option_data ";
+                }else if (option_style.Equals("delivery"))
+                {
+                    cmd.CommandText += " O_DELIVERY = @option_data ";
+                }
+                else if (option_style.Equals("orderAmount"))
+                {
+                    cmd.CommandText += " ORDER_AMOUNT = @option_data ";
+                }
+                else if (option_style.Equals("pickMeOption1"))
+                {
+                    cmd.CommandText += " O_PICK_1 = @option_data ";
+                }
+                else if (option_style.Equals("pickMeOption2"))
+                {
+                    cmd.CommandText += " O_PICK_2 = @option_data ";
+                }
+                else if (option_style.Equals("pickMeOption3"))
+                {
+                    cmd.CommandText += " O_PICK_3 = @option_data ";
+                }
+                else if (option_style.Equals("pickMeOption4"))
+                {
+                    cmd.CommandText += " O_PICK_4 = @option_data ";
+                }
+                else if (option_style.Equals("pickMeOption5"))
+                {
+                    cmd.CommandText += " O_PICK_5 = @option_data ";
+                }
+                else if (option_style.Equals("pickMeOption6"))
+                {
+                    cmd.CommandText += " O_PICK_6 = @option_data ";
+                }
+                else if (option_style.Equals("pickMeOption7"))
+                {
+                    cmd.CommandText += " O_PICK_7 = @option_data ";
+                }
+                else
+                {
+                    //error
+                }
+                
+                cmd.CommandText += " WHERE ";
+                cmd.CommandText += " SID = CONVERT(int, @sid) AND ";
+                cmd.CommandText += " USER_NUMBER = @userNumber AND ";
+                cmd.CommandText += " ITEM_NM = @item_name AND ";
+                cmd.CommandText += " CART_IN = 'N' ";
+
+                cmd.Parameters.AddWithValue("@sid", sid);
+                cmd.Parameters.AddWithValue("@option_data", option_data);
+                cmd.Parameters.AddWithValue("@userNumber", userNumber);
+                cmd.Parameters.AddWithValue("@item_name", item_name);
+
+                result = cmd.ExecuteNonQuery();
+                Debug.WriteLine("result : " + result);
+            }
+            return result;
+        }
+
+        //주문내역 확인
+        public List<CartList> selectOrderResult(string userNumber, string item_name)
+        {
+            SqlDataReader rdr = null;
+            List<CartList> cartlist = new List<CartList>();
+
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                conn.Open();
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = conn;
+
+                cmd.CommandText += " SELECT TOP 1 CAST(SID AS VARCHAR(12)) AS SID, USER_NUMBER, ITEM_NM, O_CLEANSE, O_SMOOTHIE, O_DELIVERY ";
+                cmd.CommandText += " ,O_PICK_1, O_PICK_2, O_PICK_3, O_PICK_4, O_PICK_5, O_PICK_6, O_PICK_7, ORDER_AMOUNT, REG_DATE ";
+                cmd.CommandText += " FROM TBL_ORDER_LIST_DETAIL";
+                cmd.CommandText += " WHERE USER_NUMBER = @userNumber AND ITEM_NM = @item_name";
+                cmd.CommandText += " ORDER BY REG_DATE DESC";
+
+                cmd.Parameters.AddWithValue("@userNumber", userNumber);
+                cmd.Parameters.AddWithValue("@item_name", item_name);
+
+                rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
+
+                while (rdr.Read())
+                {
+                    string sid = rdr["SID"] as string;
+                    string user_number = rdr["USER_NUMBER"] as string;
+                    string item_nm = rdr["ITEM_NM"] as string;
+                    string o_cleanse = rdr["O_CLEANSE"] as string;
+                    string o_smoothie = rdr["O_SMOOTHIE"] as string;
+                    string o_delivery = rdr["O_DELIVERY"] as string;
+                    string o_pick1 = rdr["O_PICK_1"] as string;
+                    string o_pick2 = rdr["O_PICK_2"] as string;
+                    string o_pick3 = rdr["O_PICK_3"] as string;
+                    string o_pick4 = rdr["O_PICK_4"] as string;
+                    string o_pick5 = rdr["O_PICK_5"] as string;
+                    string o_pick6 = rdr["O_PICK_6"] as string;
+                    string o_pick7 = rdr["O_PICK_7"] as string;
+                    string order_amount = rdr["ORDER_AMOUNT"] as string;
+
+                    CartList list = new CartList();
+
+                    list.sid = sid;
+                    list.userNumber = user_number;
+                    list.itemNm = item_nm;
+                    list.oCleanse = o_cleanse;
+                    list.oSmoothie = o_smoothie;
+                    list.oDelivery = o_delivery;
+                    list.oPick1 = o_pick1;
+                    list.oPick2 = o_pick2;
+                    list.oPick3 = o_pick3;
+                    list.oPick4 = o_pick4;
+                    list.oPick5 = o_pick5;
+                    list.oPick6 = o_pick6;
+                    list.oPick7 = o_pick7;
+                    list.orderAmount = order_amount;
+
+                    DButil.HistoryLog("* userNumber : " + userNumber + " || item_name : " + item_name);
+                    cartlist.Add(list);
+                }
+            }
+            return cartlist;
+        }
+
+        /*
+         * 상품 카트에 담기
+         * */
+        public int updateProductCart(string userNumber, string item_name)
+        {
+            int result;
+
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                conn.Open();
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = conn;
+                cmd.CommandText += " UPDATE TBL_ORDER_LIST_DETAIL SET CART_IN = 'Y'";
+                cmd.CommandText += " ,CART_IN_DATE =  CONVERT(VARCHAR,  GETDATE(), 101) + ' ' + CONVERT(VARCHAR,  DATEADD( HH, 9, GETDATE() ), 24) ";
+                cmd.CommandText += " WHERE SID IN ";
+                cmd.CommandText += " ( SELECT TOP 1 SID FROM TBL_ORDER_LIST_DETAIL WHERE ";
+                cmd.CommandText += " USER_NUMBER = @userNumber AND ";
+                cmd.CommandText += " ITEM_NM = @item_name ORDER BY REG_DATE DESC)";
+
+                cmd.Parameters.AddWithValue("@userNumber", userNumber);
+                cmd.Parameters.AddWithValue("@item_name", item_name);
+
+                result = cmd.ExecuteNonQuery();
+                Debug.WriteLine("result : " + result);
+            }
+            return result;
+        }
+
+        //카트보기
+        public String selectCartList(string userNumber)
+        {
+            SqlDataReader rdr = null;
+            String result_string = "";
+            
+            String theBeginningTitle = "the beginning";
+            String toAnotherLevelTitle = "to another level";
+            String beautifulRevolutionTitle = "beautiful revolution";
+            String pickMePTitle = "PICK ME";
+
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                conn.Open();
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = conn;
+
+                cmd.CommandText += " SELECT SID, USER_NUMBER, ITEM_NM, O_CLEANSE, O_SMOOTHIE, O_DELIVERY ";
+                cmd.CommandText += " ,O_PICK_1, O_PICK_2, O_PICK_3, O_PICK_4, O_PICK_5, O_PICK_6, O_PICK_7, ORDER_AMOUNT, CONVERT(char(20), CART_IN_DATE, 120) as CART_IN_DATE, REG_DATE ";
+                cmd.CommandText += " FROM TBL_ORDER_LIST_DETAIL";
+                cmd.CommandText += " WHERE USER_NUMBER = @userNumber AND CART_IN = 'Y'";
+ 
+                cmd.Parameters.AddWithValue("@userNumber", userNumber);
+
+                rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
+
+                while (rdr.Read())
+                {
+                    string user_number = rdr["USER_NUMBER"] as string;
+                    string item_nm = rdr["ITEM_NM"] as string;
+                    string o_cleanse = rdr["O_CLEANSE"] as string;
+                    string o_smoothie = rdr["O_SMOOTHIE"] as string;
+                    string o_delivery = rdr["O_DELIVERY"] as string;
+                    string o_pick1 = rdr["O_PICK_1"] as string;
+                    string o_pick2 = rdr["O_PICK_2"] as string;
+                    string o_pick3 = rdr["O_PICK_3"] as string;
+                    string o_pick4 = rdr["O_PICK_4"] as string;
+                    string o_pick5 = rdr["O_PICK_5"] as string;
+                    string o_pick6 = rdr["O_PICK_6"] as string;
+                    string o_pick7 = rdr["O_PICK_7"] as string;
+                    string order_amount = rdr["ORDER_AMOUNT"] as string;
+                    string cart_in_date = rdr["CART_IN_DATE"] as string;
+
+                    if (item_nm.Equals(theBeginningTitle))
+
+                    {
+                        result_string = result_string+ "["+ cart_in_date + "] 더비기닝" + "/" + o_cleanse + "/" + o_smoothie + "/" + o_delivery + "/" + order_amount + "개\n\n";
+                    }
+
+                    if (item_nm.Equals(toAnotherLevelTitle))
+                    {
+                        result_string = result_string + "[" + cart_in_date + "] 투어나더레벨" + "/" + o_cleanse + "/" + o_delivery + "/" + order_amount + "개\n\n";
+                    }
+
+                    if (item_nm.Equals(beautifulRevolutionTitle))
+                    {
+                        result_string = result_string + "[" + cart_in_date + "] 뷰티풀레볼루션" + "/" + o_cleanse + "/" + o_delivery + "/" + order_amount + "개\n\n";
+                    }
+
+                    if (item_nm.Equals(pickMePTitle))
+                    {
+                        result_string = result_string + "[" + cart_in_date + "] 픽미" + "/" + o_pick1 + "/" + o_pick2 + "/" + o_pick3 + "/" + o_pick4 + "/" + o_pick5 + "/" + o_pick6 + "/" + o_pick7 + "/" + o_delivery + "/" + order_amount + "개\n\n";
+                    }
+                }
+            }
+            return result_string;
+        }
 
     }
 }
