@@ -277,7 +277,7 @@ namespace JuiceChatBot.DB
             ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
             if (dlg.dlgType.Equals(MessagesController.TEXTDLG))
             {
-
+                /*
                 if (!activity.ChannelId.Equals("facebook"))
                 {
                     HeroCard plCard = new HeroCard()
@@ -287,8 +287,14 @@ namespace JuiceChatBot.DB
                     };
                     returnAttachment = plCard.ToAttachment();
                 }
+                */
+                HeroCard plCard = new HeroCard()
+                {
+                    Title = dlg.cardTitle,
+                    Text = dlg.cardText
+                };
+                returnAttachment = plCard.ToAttachment();
 
-                
             }
             else if (dlg.dlgType.Equals(MessagesController.MEDIADLG))
             {
@@ -406,7 +412,7 @@ namespace JuiceChatBot.DB
                     plCard = new UserHeroCard()
                     {
                         //Title = "선택해 주세요",
-                        Title = "",
+                        Title = dlg.cardTitle,
                         Subtitle = dlg.cardText,
                         Text = dlg.cardText,
                         Images = cardImages,
@@ -435,7 +441,6 @@ namespace JuiceChatBot.DB
                     {
                         Title = dlg.cardTitle,
                         Text = dlg.cardText,
-                        Subtitle = dlg.cardText,
                         Images = cardImages,
                         Buttons = cardButtons,
                         Card_division = cardDiv,
@@ -571,8 +576,8 @@ namespace JuiceChatBot.DB
                     plCard = new UserHeroCard()
                     {
                         Title = card.cardTitle,
-                        Text = card.cardText,//add
-                        Subtitle = card.cardText,//add
+                        //Text = card.cardText,//add
+                        Subtitle = card.cardText,//페이스북에서는 subtitle 로 해야 보이더라.
                         Images = cardImages,
                         Buttons = cardButtons
                     };
@@ -589,8 +594,8 @@ namespace JuiceChatBot.DB
                         {
                             //Title = "선택해 주세요",
                             Title = card.cardTitle,
-                            Subtitle = card.cardSubTitle,//add
-                            Text = card.cardText,
+                            Subtitle = card.cardText,//add
+                            //Text = card.cardText,
                             Images = cardImages,
                             Buttons = cardButtons,
                             Card_division = cardDiv,
@@ -605,7 +610,6 @@ namespace JuiceChatBot.DB
                         plCard = new UserHeroCard()
                         {
                             Title = card.cardTitle,
-                            Subtitle = card.cardSubTitle,//add
                             Text = card.cardText,
                             Images = cardImages,
                             Buttons = cardButtons,
