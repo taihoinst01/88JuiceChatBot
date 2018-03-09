@@ -31,7 +31,7 @@ namespace JuiceChatBot
         public static readonly string TEXTDLG = "2";
         public static readonly string CARDDLG = "3";
         public static readonly string MEDIADLG = "4";
-        public static readonly int MAXFACEBOOKCARDS = 5;
+        public static readonly int MAXFACEBOOKCARDS = 10;
 
         public static Configuration rootWebConfig = WebConfigurationManager.OpenWebConfiguration("/");
         const string chatBotAppID = "appID";
