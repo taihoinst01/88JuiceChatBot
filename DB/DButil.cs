@@ -572,7 +572,7 @@ namespace JuiceChatBot.DB
                     {
                         Title = card.cardTitle,
                         Text = card.cardText,//add
-                        Subtitle = card.cardSubTitle,//add
+                        Subtitle = card.cardText,//add
                         Images = cardImages,
                         Buttons = cardButtons
                     };
