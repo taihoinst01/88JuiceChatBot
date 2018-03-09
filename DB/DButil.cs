@@ -394,8 +394,8 @@ namespace JuiceChatBot.DB
                     plCard = new UserHeroCard()
                     {
                         //Title = "선택해 주세요",
-                        Title = dlg.cardTitle,
-                        Subtitle = "subtitle test",
+                        Title = "",
+                        Subtitle = dlg.cardText,
                         Text = dlg.cardText,
                         Images = cardImages,
                         Buttons = cardButtons,
@@ -422,7 +422,7 @@ namespace JuiceChatBot.DB
                     {
                         Title = dlg.cardTitle,
                         Text = dlg.cardText,
-                        Subtitle = "subtitle test",
+                        Subtitle = dlg.cardText,
                         Images = cardImages,
                         Buttons = cardButtons,
                         Card_division = cardDiv,
