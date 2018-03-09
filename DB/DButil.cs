@@ -393,7 +393,9 @@ namespace JuiceChatBot.DB
                     HistoryLog("FB CARD BTN1 START channelID.Equals(facebook) && string.IsNullOrEmpty(card.cardTitle)");
                     plCard = new UserHeroCard()
                     {
-                        Title = "선택해 주세요",
+                        //Title = "선택해 주세요",
+                        Title = dlg.cardTitle,
+                        Subtitle = "subtitle test",
                         Text = dlg.cardText,
                         Images = cardImages,
                         Buttons = cardButtons,
@@ -420,6 +422,7 @@ namespace JuiceChatBot.DB
                     {
                         Title = dlg.cardTitle,
                         Text = dlg.cardText,
+                        Subtitle = "subtitle test",
                         Images = cardImages,
                         Buttons = cardButtons,
                         Card_division = cardDiv,
