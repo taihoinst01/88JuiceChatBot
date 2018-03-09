@@ -571,6 +571,7 @@ namespace JuiceChatBot.DB
                     plCard = new UserHeroCard()
                     {
                         Title = card.cardTitle,
+                        Text = card.cardText,//add
                         Subtitle = card.cardSubTitle,//add
                         Images = cardImages,
                         Buttons = cardButtons
