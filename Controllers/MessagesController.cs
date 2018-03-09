@@ -31,7 +31,7 @@ namespace JuiceChatBot
         public static readonly string TEXTDLG = "2";
         public static readonly string CARDDLG = "3";
         public static readonly string MEDIADLG = "4";
-        public static readonly int MAXFACEBOOKCARDS = 10;
+        public static readonly int MAXFACEBOOKCARDS = 5;
 
         public static Configuration rootWebConfig = WebConfigurationManager.OpenWebConfiguration("/");
         const string chatBotAppID = "appID";
@@ -543,9 +543,6 @@ namespace JuiceChatBot
                                         else if (activity.ChannelId.Equals("facebook"))
                                         {
                                             DButil.HistoryLog("facebook tempcard.card_order_no : " + tempcard.card_order_no);
-                                            DButil.HistoryLog("facebook card_title====================== : " + tempcard.cardTitle);
-                                            DButil.HistoryLog("facebook card_subtitle====================== : " + tempcard.cardSubTitle);
-                                            DButil.HistoryLog("facebook card_text====================== : " + tempcard.cardText);
                                             if (tempcard.card_order_no <= MAXFACEBOOKCARDS && fbLeftCardCnt == 0)
                                             {
                                                 tempAttachment = dbutil.getAttachmentFromDialog(tempcard, activity);
