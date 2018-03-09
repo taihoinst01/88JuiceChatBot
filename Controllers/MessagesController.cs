@@ -543,6 +543,9 @@ namespace JuiceChatBot
                                         else if (activity.ChannelId.Equals("facebook"))
                                         {
                                             DButil.HistoryLog("facebook tempcard.card_order_no : " + tempcard.card_order_no);
+                                            DButil.HistoryLog("facebook card_title====================== : " + tempcard.cardTitle);
+                                            DButil.HistoryLog("facebook card_subtitle====================== : " + tempcard.cardSubTitle);
+                                            DButil.HistoryLog("facebook card_text====================== : " + tempcard.cardText);
                                             if (tempcard.card_order_no <= MAXFACEBOOKCARDS && fbLeftCardCnt == 0)
                                             {
                                                 tempAttachment = dbutil.getAttachmentFromDialog(tempcard, activity);
@@ -795,7 +798,7 @@ namespace JuiceChatBot
                                         dlg.cardText = dlg.cardText.Replace("#OPTIONS", optionText);
                                         dlg.cardText = dlg.cardText.Replace("#ORDERNUMBER", orderNmText);
                                         dlg.cardText = dlg.cardText.Replace("#ORDERPRICE", orderPriceText);
-                                        dlg.btn3Context = dlg.btn3Context.Replace("#ORDERSID", orderSID);
+                                        dlg.cardText = dlg.cardText.Replace("#ORDERSID", orderSID);
 
                                     }
 
@@ -822,6 +825,7 @@ namespace JuiceChatBot
                                         String optionText = null;
                                         String orderNmText = null;
                                         String orderPriceText = null;
+                                        String orderSID = null;
                                         int orderPrice = 0;
                                         if (cartList.Count == 0)
                                         {
@@ -854,7 +858,7 @@ namespace JuiceChatBot
                                         dlg.cardText = dlg.cardText.Replace("#OPTIONS", optionText);
                                         dlg.cardText = dlg.cardText.Replace("#ORDERNUMBER", orderNmText);
                                         dlg.cardText = dlg.cardText.Replace("#ORDERPRICE", orderPriceText);
-
+                                        dlg.cardText = dlg.cardText.Replace("#ORDERSID", orderSID);
                                     }
 
                                     if (dlg.dlgId.Equals(56)) //픽미 주문완료
@@ -864,7 +868,7 @@ namespace JuiceChatBot
                                         String optionText = null;
                                         String orderNmText = null;
                                         String orderPriceText = null;
-                                        
+                                        String orderSID = null;
                                         int orderPrice = 0;
                                         if (cartList.Count == 0)
                                         {
@@ -885,7 +889,7 @@ namespace JuiceChatBot
                                         dlg.cardText = dlg.cardText.Replace("#OPTIONS", optionText);
                                         dlg.cardText = dlg.cardText.Replace("#ORDERNUMBER", orderNmText);
                                         dlg.cardText = dlg.cardText.Replace("#ORDERPRICE", orderPriceText);
-
+                                        dlg.cardText = dlg.cardText.Replace("#ORDERSID", orderSID);
                                     }
 
                                     /*
