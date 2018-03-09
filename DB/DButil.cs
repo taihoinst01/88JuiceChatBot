@@ -277,8 +277,18 @@ namespace JuiceChatBot.DB
             ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
             if (dlg.dlgType.Equals(MessagesController.TEXTDLG))
             {
-                /*
+                
                 if (!activity.ChannelId.Equals("facebook"))
+                {
+                    HeroCard plCard = new HeroCard()
+                    {
+                        Title = dlg.cardTitle,
+                        Text = dlg.cardText,
+                        Subtitle = dlg.cardText
+                    };
+                    returnAttachment = plCard.ToAttachment();
+                }
+                else
                 {
                     HeroCard plCard = new HeroCard()
                     {
@@ -287,13 +297,9 @@ namespace JuiceChatBot.DB
                     };
                     returnAttachment = plCard.ToAttachment();
                 }
-                */
-                HeroCard plCard = new HeroCard()
-                {
-                    Title = dlg.cardTitle,
-                    Text = dlg.cardText
-                };
-                returnAttachment = plCard.ToAttachment();
+                
+                HistoryLog("로그보자 0000000000");
+               
 
             }
             else if (dlg.dlgType.Equals(MessagesController.MEDIADLG))
