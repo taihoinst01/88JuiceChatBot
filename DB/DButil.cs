@@ -282,7 +282,7 @@ namespace JuiceChatBot.DB
                     HeroCard plCard = new HeroCard()
                     {
                         Title = dlg.cardTitle,
-                        Text = dlg.cardText,
+                        //Text = dlg.cardText,
                         Subtitle = dlg.cardText
                     };
                     returnAttachment = plCard.ToAttachment();

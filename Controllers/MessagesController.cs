@@ -574,51 +574,64 @@ namespace JuiceChatBot
                                     if (dlg.dlgId.Equals(34)) //  수량입력일 때만 적용되도록 한다. 다른 거일때는 적용되면 안됨.
                                     {
                                         orderNumIdenty = "orderNumber::"+theBeginningTitle;
-                                    }else if (dlg.dlgId.Equals(38)) //  수량입력일 때만 적용되도록 한다. 다른 거일때는 적용되면 안됨.
+                                        DButil.HistoryLog("orderNumIdenty : " + orderNumIdenty);
+                                    }
+                                    else if (dlg.dlgId.Equals(38)) //  수량입력일 때만 적용되도록 한다. 다른 거일때는 적용되면 안됨.
                                     {
                                         orderNumIdenty = "orderNumber::" + toAnotherLevelTitle;
-                                    }else if (dlg.dlgId.Equals(42)) //  수량입력일 때만 적용되도록 한다. 다른 거일때는 적용되면 안됨.
+                                        DButil.HistoryLog("orderNumIdenty : " + orderNumIdenty);
+                                    }
+                                    else if (dlg.dlgId.Equals(42)) //  수량입력일 때만 적용되도록 한다. 다른 거일때는 적용되면 안됨.
                                     {
                                         orderNumIdenty = "orderNumber::" + beautifulRevolutionTitle;
+                                        DButil.HistoryLog("orderNumIdenty : " + orderNumIdenty);
                                     }
                                     else if (dlg.dlgId.Equals(52)) //  수량입력일 때만 적용되도록 한다. 다른 거일때는 적용되면 안됨.
                                     {
                                         orderNumIdenty = "orderNumber::" + pickMePTitle;
+                                        DButil.HistoryLog("orderNumIdenty : " + orderNumIdenty);
                                     }
                                     else if (dlg.dlgId.Equals(44)) //  픽미옵션처리 빌려쓰자.
                                     {
                                         orderNumIdenty = "pickMeOption";
                                         pickOptionNextData = "픽미::옵션1";
+                                        DButil.HistoryLog("orderNumIdenty : " + orderNumIdenty + "pickOptionNextData : " + pickOptionNextData);
                                     }
                                     else if (dlg.dlgId.Equals(45)) //  픽미옵션처리 빌려쓰자.
                                     {
                                         orderNumIdenty = "pickMeOption";
                                         pickOptionNextData = "픽미::옵션2";
+                                        DButil.HistoryLog("orderNumIdenty : " + orderNumIdenty + "pickOptionNextData : " + pickOptionNextData);
                                     }
                                     else if (dlg.dlgId.Equals(46)) //  픽미옵션처리 빌려쓰자.
                                     {
                                         orderNumIdenty = "pickMeOption";
                                         pickOptionNextData = "픽미::옵션3";
+                                        DButil.HistoryLog("orderNumIdenty : " + orderNumIdenty + "pickOptionNextData : " + pickOptionNextData);
                                     }
                                     else if (dlg.dlgId.Equals(47)) //  픽미옵션처리 빌려쓰자.
                                     {
                                         orderNumIdenty = "pickMeOption";
                                         pickOptionNextData = "픽미::옵션4";
+                                        DButil.HistoryLog("orderNumIdenty : " + orderNumIdenty + "pickOptionNextData : " + pickOptionNextData);
                                     }
                                     else if (dlg.dlgId.Equals(48)) //  픽미옵션처리 빌려쓰자.
                                     {
                                         orderNumIdenty = "pickMeOption";
                                         pickOptionNextData = "픽미::옵션5";
+                                        DButil.HistoryLog("orderNumIdenty : " + orderNumIdenty + "pickOptionNextData : " + pickOptionNextData);
                                     }
                                     else if (dlg.dlgId.Equals(49)) //  픽미옵션처리 빌려쓰자.
                                     {
                                         orderNumIdenty = "pickMeOption";
                                         pickOptionNextData = "픽미::옵션6";
+                                        DButil.HistoryLog("orderNumIdenty : " + orderNumIdenty + "pickOptionNextData : " + pickOptionNextData);
                                     }
                                     else if (dlg.dlgId.Equals(50)) //  픽미옵션처리 빌려쓰자.
                                     {
                                         orderNumIdenty = "pickMeOption";
                                         pickOptionNextData = "픽미::옵션7";
+                                        DButil.HistoryLog("orderNumIdenty : " + orderNumIdenty + "pickOptionNextData : " + pickOptionNextData);
                                     }
                                     else
                                     {
@@ -657,9 +670,10 @@ namespace JuiceChatBot
                                         {
                                             productTitle = pickMePTitle;
                                         }
-
+                                        DButil.HistoryLog("productTitle : " + productTitle);
                                         db.insertProductBasicInfo(activity.Conversation.Id, productTitle);
                                         selectSID = db.selectProductSID(activity.Conversation.Id, productTitle);
+                                        DButil.HistoryLog("selectSID : " + selectSID);
                                     }
 
                                     if (dlg.dlgId.Equals(32)) //비기닝 클렌즈 일수
@@ -667,6 +681,7 @@ namespace JuiceChatBot
                                         temp_cleanse = orgMent.Split(new string[] { "::" }, StringSplitOptions.None);
                                         cleanse_day = temp_cleanse[1];
                                         db.updateProductOption(activity.Conversation.Id, theBeginningTitle, "cleanse", cleanse_day, selectSID);
+                                        DButil.HistoryLog("beginning cleanse_day : " + cleanse_day);
                                     }
 
                                     if (dlg.dlgId.Equals(33)) //비기닝 보식스무디 종류 선택
@@ -674,6 +689,7 @@ namespace JuiceChatBot
                                         temp_bosic = orgMent.Split(new string[] { "::" }, StringSplitOptions.None);
                                         bosic_data = temp_bosic[1];
                                         db.updateProductOption(activity.Conversation.Id, theBeginningTitle, "smoothie", bosic_data, selectSID);
+                                        DButil.HistoryLog("beginning bosic_data : " + bosic_data);
                                     }
 
                                     if (dlg.dlgId.Equals(34)) //비기닝 배송방식 선택
@@ -681,6 +697,7 @@ namespace JuiceChatBot
                                         temp_delivery = orgMent.Split(new string[] { "::" }, StringSplitOptions.None);
                                         delivery = temp_delivery[1];
                                         db.updateProductOption(activity.Conversation.Id, theBeginningTitle, "delivery", delivery, selectSID);
+                                        DButil.HistoryLog("beginning delivery : " + delivery);
                                     }
 
                                     if (dlg.dlgId.Equals(37)) //투어나더레벨 클렌즈 일수
@@ -688,6 +705,7 @@ namespace JuiceChatBot
                                         temp_cleanse = orgMent.Split(new string[] { "::" }, StringSplitOptions.None);
                                         cleanse_day = temp_cleanse[1];
                                         db.updateProductOption(activity.Conversation.Id, toAnotherLevelTitle, "cleanse", cleanse_day, selectSID);
+                                        DButil.HistoryLog("toanotherlevel cleanse_day : " + cleanse_day);
                                     }
 
                                     if (dlg.dlgId.Equals(38)) //투어나더레벨 배송방식 선택
@@ -695,6 +713,7 @@ namespace JuiceChatBot
                                         temp_delivery = orgMent.Split(new string[] { "::" }, StringSplitOptions.None);
                                         delivery = temp_delivery[1];
                                         db.updateProductOption(activity.Conversation.Id, toAnotherLevelTitle, "delivery", delivery, selectSID);
+                                        DButil.HistoryLog("toanotherlevel delivery : " + delivery);
                                     }
                                     
                                     if (dlg.dlgId.Equals(41)) //뷰티풀레볼루션 클랜즈 일수
@@ -702,13 +721,15 @@ namespace JuiceChatBot
                                         temp_cleanse = orgMent.Split(new string[] { "::" }, StringSplitOptions.None);
                                         cleanse_day = temp_cleanse[1];
                                         db.updateProductOption(activity.Conversation.Id, beautifulRevolutionTitle, "cleanse", cleanse_day, selectSID);
+                                        DButil.HistoryLog("beautifulRevolution cleanse_day : " + cleanse_day);
                                     }
 
                                     if (dlg.dlgId.Equals(42)) //뷰티풀레볼루션 배송방식 선택
                                     {
                                         temp_delivery = orgMent.Split(new string[] { "::" }, StringSplitOptions.None);
                                         delivery = temp_delivery[1];
-                                        db.updateProductOption(activity.Conversation.Id, beautifulRevolutionTitle, "delivery", delivery, selectSID);
+                                        db.updateProductOption(activity.Conversation.Id, delivery, "delivery", delivery, selectSID);
+                                        DButil.HistoryLog("beautifulRevolution delivery : " + cleanse_day);
                                     }
                                     /*
                                      * pick me option
@@ -716,36 +737,43 @@ namespace JuiceChatBot
                                     if (dlg.dlgId.Equals(45)) //픽미 옵션1 처리
                                     {
                                         db.updateProductOption(activity.Conversation.Id, pickMePTitle, "pickMeOption1", pickOptionData, selectSID);
+                                        DButil.HistoryLog("pickoption1 pickOptionData : " + pickOptionData + "|| pickoption1 selectSID : " + selectSID);
                                     }
 
                                     if (dlg.dlgId.Equals(46)) //픽미 옵션2 처리
                                     {
                                         db.updateProductOption(activity.Conversation.Id, pickMePTitle, "pickMeOption2", pickOptionData, selectSID);
+                                        DButil.HistoryLog("pickoption2 pickOptionData : " + pickOptionData + "|| pickoption2 selectSID : " + selectSID);
                                     }
 
                                     if (dlg.dlgId.Equals(47)) //픽미 옵션3 처리
                                     {
                                         db.updateProductOption(activity.Conversation.Id, pickMePTitle, "pickMeOption3", pickOptionData, selectSID);
+                                        DButil.HistoryLog("pickoption3 pickOptionData : " + pickOptionData + "|| pickoption3 selectSID : " + selectSID);
                                     }
 
                                     if (dlg.dlgId.Equals(48)) //픽미 옵션4 처리
                                     {
                                         db.updateProductOption(activity.Conversation.Id, pickMePTitle, "pickMeOption4", pickOptionData, selectSID);
+                                        DButil.HistoryLog("pickoption4 pickOptionData : " + pickOptionData + "|| pickoption4 selectSID : " + selectSID);
                                     }
 
                                     if (dlg.dlgId.Equals(49)) //픽미 옵션5 처리
                                     {
                                         db.updateProductOption(activity.Conversation.Id, pickMePTitle, "pickMeOption5", pickOptionData, selectSID);
+                                        DButil.HistoryLog("pickoption5 pickOptionData : " + pickOptionData + "|| pickoption5 selectSID : " + selectSID);
                                     }
 
                                     if (dlg.dlgId.Equals(50)) //픽미 옵션6 처리
                                     {
                                         db.updateProductOption(activity.Conversation.Id, pickMePTitle, "pickMeOption6", pickOptionData, selectSID);
+                                        DButil.HistoryLog("pickoption6 pickOptionData : " + pickOptionData + "|| pickoption6 selectSID : " + selectSID);
                                     }
 
                                     if (dlg.dlgId.Equals(51)) //픽미 옵션7 처리
                                     {
                                         db.updateProductOption(activity.Conversation.Id, pickMePTitle, "pickMeOption7", pickOptionData, selectSID);
+                                        DButil.HistoryLog("pickoption7 pickOptionData : " + pickOptionData + "|| pickoption7 selectSID : " + selectSID);
                                     }
 
                                     if (dlg.dlgId.Equals(52)) //픽미 배송방식 선택
@@ -753,6 +781,7 @@ namespace JuiceChatBot
                                         temp_delivery = orgMent.Split(new string[] { "::" }, StringSplitOptions.None);
                                         delivery = temp_delivery[1];
                                         db.updateProductOption(activity.Conversation.Id, pickMePTitle, "delivery", delivery, selectSID);
+                                        DButil.HistoryLog("pickme delivery : " + delivery);
                                     }
 
                                     if (dlg.dlgId.Equals(53)) //비기닝
@@ -796,7 +825,7 @@ namespace JuiceChatBot
                                         dlg.cardText = dlg.cardText.Replace("#ORDERNUMBER", orderNmText);
                                         dlg.cardText = dlg.cardText.Replace("#ORDERPRICE", orderPriceText);
                                         dlg.cardText = dlg.cardText.Replace("#ORDERSID", orderSID);
-
+                                        DButil.HistoryLog("beginning cart_data : ");
                                     }
 
                                     if(dlg.dlgId.Equals(54)|| dlg.dlgId.Equals(55)) //투어나더레벨, 뷰티풀레볼루션 주문완료
@@ -856,6 +885,7 @@ namespace JuiceChatBot
                                         dlg.cardText = dlg.cardText.Replace("#ORDERNUMBER", orderNmText);
                                         dlg.cardText = dlg.cardText.Replace("#ORDERPRICE", orderPriceText);
                                         dlg.cardText = dlg.cardText.Replace("#ORDERSID", orderSID);
+                                        DButil.HistoryLog("toanotherlevel/beautiful cart_data : ");
                                     }
 
                                     if (dlg.dlgId.Equals(56)) //픽미 주문완료
@@ -887,6 +917,7 @@ namespace JuiceChatBot
                                         dlg.cardText = dlg.cardText.Replace("#ORDERNUMBER", orderNmText);
                                         dlg.cardText = dlg.cardText.Replace("#ORDERPRICE", orderPriceText);
                                         dlg.cardText = dlg.cardText.Replace("#ORDERSID", orderSID);
+                                        DButil.HistoryLog("pickme cart_data : ");
                                     }
 
                                     /*
@@ -896,17 +927,22 @@ namespace JuiceChatBot
                                     if (dlg.dlgId.Equals(58))
                                     {
                                         db.updateProductCart(activity.Conversation.Id, theBeginningTitle);
-                                    }else if (dlg.dlgId.Equals(59))
+                                        DButil.HistoryLog("beginning cart_process : ");
+                                    }
+                                    else if (dlg.dlgId.Equals(59))
                                     {
                                         db.updateProductCart(activity.Conversation.Id, toAnotherLevelTitle);
+                                        DButil.HistoryLog("toanotherlevel cart_process : ");
                                     }
                                     else if (dlg.dlgId.Equals(60))
                                     {
                                         db.updateProductCart(activity.Conversation.Id, beautifulRevolutionTitle);
+                                        DButil.HistoryLog("beautiful cart_process : ");
                                     }
                                     else if (dlg.dlgId.Equals(61))
                                     {
                                         db.updateProductCart(activity.Conversation.Id, pickMePTitle);
+                                        DButil.HistoryLog("pickme cart_process : ");
                                     }
                                     else
                                     {
@@ -916,24 +952,6 @@ namespace JuiceChatBot
 
                                     if (dlg.dlgId.Equals(62)) //  카트보기
                                     {
-                                        /*
-                                        DButil.HistoryLog("*** activity.Conversation.Id : " + activity.Conversation.Id + " | dlg.cardText : " + dlg.cardText + " | fullentity : " + fullentity); 
-
-                                        string[] strComment = new string[3];
-                                        string optionComment = "";
-                                        string orderNumber = ""; //주문수량
-
-                                        strComment[0] = db.SelectUserHistoryComment(activity.Conversation.Id, "selectDiet");
-                                        strComment[1] = db.SelectUserHistoryComment(activity.Conversation.Id, "selectDelievery");
-                                        orderNumber = db.SelectUserHistoryComment(activity.Conversation.Id, "orderNumber");
-                                        //strComment[2] = db.SelectUserHistoryComment(activity.Conversation.Id, "order");
-                                        DButil.HistoryLog("*** strComment[0] : " + strComment[0] + " | strComment[1] : " + strComment[1] + " | strComment[2] : " + strComment[2]);
-
-                                        //optionComment = strComment[0] + "/" + strComment[1] + "/" + strComment[2];
-                                        optionComment = strComment[0] + "/" + strComment[1] + "/" + fullentity;
-                                        dlg.cardText = dlg.cardText.Replace("#OPTIONS", optionComment);
-                                        dlg.cardText = dlg.cardText.Replace("#ORDERNUMBER", orderNumber);
-                                        */
                                         String cart_data = "";
                                         cart_data = db.selectCartList(activity.Conversation.Id);
                                         if(cart_data.Equals("")|| cart_data == null)
@@ -942,6 +960,7 @@ namespace JuiceChatBot
                                         }
                                         Debug.WriteLine("* cart_data : " + cart_data);
                                         dlg.cardText = dlg.cardText.Replace("#CARTLIST", cart_data);
+                                        DButil.HistoryLog("see cart_data : "+cart_data);
                                     }
 
                                     if (activity.ChannelId.Equals("facebook") && string.IsNullOrEmpty(dlg.cardTitle) && dlg.dlgType.Equals(TEXTDLG))
