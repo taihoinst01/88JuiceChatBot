@@ -311,7 +311,7 @@ namespace JuiceChatBot.DB
                 List<CardImage> cardImages = new List<CardImage>();
                 List<CardAction> cardButtons = new List<CardAction>();
 
-                HistoryLog("CARD IMG START");
+                HistoryLog("CARD IMG START22222222");
                 if (dlg.mediaUrl != null)
                 {
                     HistoryLog("FB CARD IMG " + dlg.mediaUrl);
@@ -473,7 +473,7 @@ namespace JuiceChatBot.DB
 
             List<CardImage> cardImages = new List<CardImage>();
             List<CardAction> cardButtons = new List<CardAction>();
-            HistoryLog("CARD IMG START");
+            HistoryLog("CARD IMG START111111111");
             if (card.imgUrl != null)
             {
                 HistoryLog("FB CARD IMG " + card.imgUrl);
