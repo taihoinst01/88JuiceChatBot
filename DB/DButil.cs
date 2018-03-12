@@ -341,20 +341,6 @@ namespace JuiceChatBot.DB
 
                 if (dlg.btn2Type != null)
                 {
-                    /*
-                    if (!(activity.ChannelId == "facebook" && dlg.btn2Title == "나에게 맞는 모델 추천"))
-                    {
-                        CardAction plButton = new CardAction();
-                        HistoryLog("CARD BTN2 START");
-                        plButton = new CardAction()
-                        {
-                            Value = dlg.btn2Context,
-                            Type = dlg.btn2Type,
-                            Title = dlg.btn2Title
-                        };
-                        cardButtons.Add(plButton);
-                    }
-                    */
                     CardAction plButton = new CardAction();
                     HistoryLog("CARD BTN2 START");
                     plButton = new CardAction()

@@ -246,12 +246,13 @@ namespace JuiceChatBot
                             reply_facebook.Text = dialogs.cardText;
                             var reply_ment_facebook = connector.Conversations.SendToConversationAsync(reply_facebook);
                             //SetActivity(reply_facebook);
-
+                            DButil.HistoryLog("* 로그보기 : 제일처음 나오는 부분--페이스북" + reply_facebook.Text);
                         }
                         else
                         {
                             tempAttachment = dbutil.getAttachmentFromDialog(dialogs, activity);
                             initReply.Attachments.Add(tempAttachment);
+                            DButil.HistoryLog("* 로그보기 : 제일처음 나오는 부분--페이스북 아님" + dialogs.cardText);
                         }
                     }
                     await connector.Conversations.SendToConversationAsync(initReply);
