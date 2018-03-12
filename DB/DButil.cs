@@ -307,7 +307,7 @@ namespace JuiceChatBot.DB
                 List<CardImage> cardImages = new List<CardImage>();
                 List<CardAction> cardButtons = new List<CardAction>();
 
-                HistoryLog("CARD IMG START22222222");
+                HistoryLog("CARD IMG START");
                 if (dlg.mediaUrl != null)
                 {
                     HistoryLog("FB CARD IMG " + dlg.mediaUrl);
@@ -396,7 +396,7 @@ namespace JuiceChatBot.DB
                 if (activity.ChannelId == "facebook" && string.IsNullOrEmpty(dlg.cardTitle))
                 {
                     HistoryLog("FB CARD BTN1 START channelID.Equals(facebook) && string.IsNullOrEmpty(card.cardTitle)");
-                    HistoryLog("로그보자 11111111");
+                    
                     plCard = new UserHeroCard()
                     {
                         //Title = "선택해 주세요",
@@ -425,7 +425,7 @@ namespace JuiceChatBot.DB
                 else
                 {
                     HistoryLog("!!!!!!!!FB CARD BTN1 START channelID.Equals(facebook) && string.IsNullOrEmpty(card.cardTitle)");
-                    HistoryLog("로그보자 22222222");
+                    
                     plCard = new UserHeroCard()
                     {
                         Title = dlg.cardTitle,
@@ -456,7 +456,7 @@ namespace JuiceChatBot.DB
 
             List<CardImage> cardImages = new List<CardImage>();
             List<CardAction> cardButtons = new List<CardAction>();
-            HistoryLog("CARD IMG START111111111");
+            HistoryLog("CARD IMG START");
             if (card.imgUrl != null)
             {
                 HistoryLog("FB CARD IMG " + card.imgUrl);
@@ -561,7 +561,7 @@ namespace JuiceChatBot.DB
                 if (activity.ChannelId == "facebook" && string.IsNullOrEmpty(card.cardValue))
                 {
                     HistoryLog("FB CARD BTN1 START channelID.Equals(facebook) && string.IsNullOrEmpty(card.cardValue)");
-                    HistoryLog("로그보자 33333333");
+                    
                     plCard = new UserHeroCard()
                     {
                         Title = card.cardTitle,
@@ -578,7 +578,7 @@ namespace JuiceChatBot.DB
                     if (activity.ChannelId == "facebook" && string.IsNullOrEmpty(card.cardTitle))
                     {
                         HistoryLog("FB CARD BTN1 START channelID.Equals(facebook) && string.IsNullOrEmpty(card.cardTitle)");
-                        HistoryLog("로그보자 4444444444");
+                        
                         plCard = new UserHeroCard()
                         {
                             //Title = "선택해 주세요",
@@ -595,7 +595,7 @@ namespace JuiceChatBot.DB
                     else
                     {
                         HistoryLog("!!!!!!!!FB CARD BTN1 START channelID.Equals(facebook) && string.IsNullOrEmpty(card.cardTitle)");
-                        HistoryLog("로그보자 555555555");
+                        
                         plCard = new UserHeroCard()
                         {
                             Title = card.cardTitle,
